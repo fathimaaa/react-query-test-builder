@@ -1,90 +1,117 @@
 import React from 'react';
 
 export default class Rule extends React.Component {
-  static get defaultProps() {
-    return {
-      id: null,
-      parentId: null,
-      field: null,
-      operator: null,
-      value: null,
-      schema: null
-    };
-  }
+	static get defaultProps() {
+		return {
+			id: null,
+			parentId: null,
+			field: null,
+			operator: null,
+			value: null,
+			schema: null
+		};
+	}
 
-  render() {
-    const {
-      field,
-      operator,
-      value,
-      translations,
-      schema: { fields, controls, getOperators, getLevel, classNames }
-    } = this.props;
-    const level = getLevel(this.props.id);
-    return (
-      <div className={`rule ${classNames.rule}`}>
-        {React.createElement(controls.fieldSelector, {
-          options: fields,
-          title: translations.fields.title,
-          value: field,
-          className: `rule-fields ${classNames.fields}`,
-          handleOnChange: this.onFieldChanged,
-          level: level
-        })}
-        {React.createElement(controls.operatorSelector, {
-          field: field,
-          title: translations.operators.title,
-          options: getOperators(field),
-          value: operator,
-          className: `rule-operators ${classNames.operators}`,
-          handleOnChange: this.onOperatorChanged,
-          level: level
-        })}
-        {React.createElement(controls.valueEditor, {
-          field: field,
-          title: translations.value.title,
-          operator: operator,
-          value: value,
-          className: `rule-value ${classNames.value}`,
-          handleOnChange: this.onValueChanged,
-          level: level
-        })}
-        {React.createElement(controls.removeRuleAction, {
-          label: translations.removeRule.label,
-          title: translations.removeRule.title,
-          className: `rule-remove ${classNames.removeRule}`,
-          handleOnClick: this.removeRule,
-          level: level
-        })}
-      </div>
-    );
-  }
+	render() {
+		const {
+			isRuleMinified,
+			field,
+			operator,
+			value,
+			translations,
+			schema: { fields, controls, getOperators, getLevel, classNames }
+		} = this.props;
+		const level = getLevel(this.props.id);
+		return (
+			<div className={`rule ${classNames.rule}`}>
 
-  onFieldChanged = (value) => {
-    this.onElementChanged('field', value);
-  };
+				{isRuleMinified ?
+					<div className="rule-minified" onClick={this.onToggleRuleView.bind(this, false)}>
+						<span className="rule-minified-field">{field}</span>
+						<span className="rule-minified-operator">{operator}</span>
+						<span className="rule-minified-value">{value ? '"' + value + '"' : ''}</span>
+						{React.createElement(controls.removeRuleAction, {
+							label: translations.removeRule.label,
+							title: translations.removeRule.title,
+							className: `rule-remove ${classNames.removeRule}`,
+							handleOnClick: this.removeRule,
+							level: level
+						})}
+					</div>
+					:
+					<div className="rule-box">
+						{React.createElement(controls.fieldSelector, {
+							options: fields,
+							title: translations.fields.title,
+							value: field,
+							className: `rule-fields ${classNames.fields}`,
+							handleOnChange: this.onFieldChanged,
+							level: level
+						})}
+						{React.createElement(controls.operatorSelector, {
+							field: field,
+							title: translations.operators.title,
+							options: getOperators(field),
+							value: operator,
+							className: `rule-operators ${classNames.operators}`,
+							handleOnChange: this.onOperatorChanged,
+							level: level
+						})}
+						{React.createElement(controls.valueEditor, {
+							field: field,
+							title: translations.value.title,
+							operator: operator,
+							value: value,
+							className: `rule-value ${classNames.value}`,
+							handleOnChange: this.onValueChanged,
+							level: level
+						})}
+						{React.createElement(controls.removeRuleAction, {
+							label: translations.removeRule.label,
+							title: translations.removeRule.title,
+							className: `rule-remove ${classNames.removeRule}`,
+							handleOnClick: this.removeRule,
+							level: level
+						})}
+						<button className="rule-confirm" onClick={this.onToggleRuleView.bind(this, true)}>
+							<img src={require('../../assets/images/common/tick.svg')} alt="Confirm Rule" />
+						</button>
+					</div>
+				}
 
-  onOperatorChanged = (value) => {
-    this.onElementChanged('operator', value);
-  };
+			</div>
+		);
+	}
 
-  onValueChanged = (value) => {
-    this.onElementChanged('value', value);
-  };
+	onFieldChanged = (value) => {
+		this.onElementChanged('field', value);
+	};
 
-  onElementChanged = (property, value) => {
-    const {
-      id,
-      schema: { onPropChange }
-    } = this.props;
+	onOperatorChanged = (value) => {
+		this.onElementChanged('operator', value);
+	};
 
-    onPropChange(property, value, id);
-  };
+	onValueChanged = (value) => {
+		this.onElementChanged('value', value);
+	};
 
-  removeRule = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
+	onToggleRuleView(value) {
+		this.onElementChanged('isRuleMinified', value)
+	}
 
-    this.props.schema.onRuleRemove(this.props.id, this.props.parentId);
-  };
+	onElementChanged = (property, value) => {
+		const {
+			id,
+			schema: { onPropChange }
+		} = this.props;
+
+		onPropChange(property, value, id);
+	};
+
+	removeRule = (event) => {
+		event.preventDefault();
+		event.stopPropagation();
+
+		this.props.schema.onRuleRemove(this.props.id, this.props.parentId);
+	};
 }
