@@ -1,7 +1,7 @@
 {
   "name": "react-query-test-builder",
-  "version": "1.1.1",
-  "description": "Testing",
+  "version": "1.1.2",
+  "description": "Testing...",
   "main": "dist/index.js",
   "types": "./index.d.ts",
   "repository": {
